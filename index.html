@@ -3,507 +3,152 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Event List Check-in</title>
+  <title>Pride Singles Check-in</title>
   <style>
-    :root {
-      --bg1: #fff4fb;
-      --bg2: #eefaff;
-      --ink: #14142b;
-      --muted: #5e6475;
-      --card: rgba(255,255,255,.92);
-      --line: rgba(45, 35, 90, .14);
-      --shadow: 0 18px 45px rgba(31, 23, 80, .12);
-      --purple: #6d3df5;
-      --blue: #0877f2;
-      --teal: #08a88a;
-      --orange: #ff9d2e;
-      --green: #20b26b;
-      --pink: #f0569a;
-      --red: #e5484d;
+    :root{
+      --bg:#f7f7ff; --card:#ffffff; --ink:#172033; --muted:#647084;
+      --purple:#6d38ff; --blue:#1077ff; --teal:#05a99d; --pink:#ff4fa3;
+      --green:#12a66a; --orange:#ff9f1c; --border:#dbe2f1;
+      --shadow:0 14px 35px rgba(31,41,71,.12);
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(240, 86, 154, .18), transparent 28rem),
-        radial-gradient(circle at top right, rgba(8, 168, 138, .2), transparent 32rem),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
-    }
-
-    .hero {
-      padding: max(18px, env(safe-area-inset-top)) 18px 24px;
-      color: white;
-      background: linear-gradient(120deg, #7137ff, #0877f2 55%, #08a88a);
-      box-shadow: 0 14px 35px rgba(39, 55, 160, .24);
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-
-    .hero-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      max-width: 1200px;
-      margin: 0 auto 16px;
-    }
-
-    h1 { margin: 0; font-size: clamp(24px, 3.8vw, 40px); letter-spacing: -0.04em; }
-    .subtitle { margin-top: 5px; font-size: 15px; opacity: .92; }
-    .refresh {
-      border: 0;
-      border-radius: 16px;
-      padding: 12px 16px;
-      background: rgba(255,255,255,.18);
-      color: white;
-      font-weight: 800;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .tabs {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .tab {
-      border: 0;
-      border-radius: 22px;
-      padding: 14px 10px;
-      min-height: 78px;
-      background: rgba(255,255,255,.9);
-      color: #14142b;
-      cursor: pointer;
-      box-shadow: 0 10px 26px rgba(0,0,0,.11), inset 0 0 0 1px rgba(255,255,255,.55);
-      display: grid;
-      place-items: center;
-    }
-
-    .tab strong { display: block; font-size: 25px; line-height: 1; }
-    .tab span { display: block; margin-top: 7px; font-size: 14px; }
-    .tab.active { transform: translateY(-2px); outline: 3px solid rgba(255,255,255,.65); }
-    .tab.pending.active { background: linear-gradient(135deg, #fff3c7, #ffd59a); color: #652b00; }
-    .tab.arrived.active { background: linear-gradient(135deg, #dfffea, #8af0bd); color: #053a22; }
-    .tab.all.active { background: linear-gradient(135deg, #eaf3ff, #b6d8ff); color: #092a62; }
-    .tab.waiting.active { background: linear-gradient(135deg, #f5e7ff, #d9b4ff); color: #3d1161; }
-
-    main { max-width: 900px; margin: 26px auto 60px; padding: 0 16px; }
-
-    .search {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 17px 18px;
-      font-size: 17px;
-      background: rgba(255,255,255,.88);
-      box-shadow: var(--shadow);
-      outline: none;
-    }
-    .search:focus { border-color: rgba(109, 61, 245, .45); box-shadow: 0 0 0 4px rgba(109, 61, 245, .13), var(--shadow); }
-
-    .panel {
-      margin-top: 16px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .panel-head {
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid var(--line);
-    }
-    .panel-head h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
-    .tiny { color: var(--muted); font-size: 13px; }
-
-    .form {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(135deg, rgba(245,231,255,.8), rgba(232,250,255,.8));
-    }
-    .form input {
-      min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px 13px;
-      font-size: 16px;
-      background: white;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-      color: #101026;
-      background: #eef1f7;
-      white-space: nowrap;
-    }
-    .btn.primary { background: linear-gradient(135deg, #7137ff, #0877f2); color: white; }
-    .btn.good { background: #dfffea; color: #075231; }
-    .btn.warn { background: #fff3c7; color: #652b00; }
-    .btn.danger { background: #ffe5e5; color: #8b1015; }
-
-    .list { padding: 10px; }
-    .empty { padding: 32px 18px; text-align: center; color: var(--muted); }
-
-    .person {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 12px;
-      padding: 13px;
-      margin: 8px 0;
-      border-radius: 20px;
-      background: rgba(255,255,255,.86);
-      border: 1px solid var(--line);
-      box-shadow: 0 8px 18px rgba(31, 23, 80, .06);
-    }
-    .person.arrived-row { background: linear-gradient(135deg, rgba(223,255,234,.95), rgba(255,255,255,.9)); }
-    .person.waiting-row { background: linear-gradient(135deg, rgba(245,231,255,.95), rgba(255,255,255,.9)); }
-
-    .avatar {
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      font-weight: 900;
-      color: white;
-      background: linear-gradient(135deg, var(--purple), var(--pink));
-      box-shadow: 0 10px 18px rgba(109, 61, 245, .22);
-    }
-    .arrived-row .avatar { background: linear-gradient(135deg, var(--green), var(--teal)); }
-    .waiting-row .avatar { background: linear-gradient(135deg, var(--pink), var(--purple)); }
-
-    .name { font-size: 18px; font-weight: 850; letter-spacing: -0.02em; }
-    .phone { margin-top: 3px; color: var(--muted); font-size: 14px; }
-    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-
-    .note { margin-top: 14px; color: var(--muted); font-size: 13px; line-height: 1.35; }
-    .footer-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-
-    @media (max-width: 760px) {
-      .tabs { grid-template-columns: repeat(2, 1fr); }
-      .form { grid-template-columns: 1fr; }
-      .person { grid-template-columns: auto 1fr; }
-      .actions { grid-column: 1 / -1; justify-content: stretch; }
-      .actions .btn { flex: 1; }
-      .hero-top { flex-direction: column; }
-      .refresh { width: 100%; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(145deg,#fff4fb 0%,#f8f6ff 38%,#eefcff 100%);color:var(--ink)}
+    header{padding:18px 18px 22px;background:linear-gradient(120deg,var(--purple),var(--blue),var(--teal));color:#fff;box-shadow:var(--shadow)}
+    h1{margin:0;font-size:30px;line-height:1.05}.sub{margin-top:8px;font-weight:650;opacity:.94}.tiny{font-size:13px;opacity:.86;margin-top:4px}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.tab{border:0;border-radius:18px;background:rgba(255,255,255,.88);color:#14203d;padding:14px 8px;box-shadow:0 8px 20px rgba(0,0,0,.11);font-size:16px}.tab strong{display:block;font-size:25px}.tab.active{background:#ffe2b6;outline:3px solid rgba(255,255,255,.45)}
+    main{max-width:980px;margin:26px auto;padding:0 14px 38px}.search{width:100%;font-size:18px;padding:17px 18px;border-radius:17px;border:1px solid var(--border);box-shadow:0 5px 18px rgba(31,41,71,.07);outline:none;background:#fff}.panel{margin-top:16px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.panelTitle{display:flex;justify-content:space-between;align-items:center;padding:18px 18px;border-bottom:1px solid var(--border);font-weight:850;font-size:20px}.list{padding:12px}.person{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#fff;margin:10px 0;padding:13px;border-radius:18px;border:1px solid #e7ecf7;box-shadow:0 7px 16px rgba(20,32,61,.06)}.person.arrived{background:#ecfff6;border-color:#b5efd2}.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--pink),var(--purple))}.name{font-size:18px;font-weight:850}.phone{margin-top:3px;color:var(--muted);font-weight:650}.badge{display:inline-block;margin-top:6px;font-size:12px;font-weight:800;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#33406b}.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}button{cursor:pointer}.btn{border:0;border-radius:12px;padding:10px 12px;font-weight:850;font-size:14px}.btn.arrive{background:var(--green);color:#fff}.btn.pending{background:var(--orange);color:#281a00}.btn.copy{background:#e9efff;color:#24345f}.btn.del{background:#ffe9ef;color:#9a1238}.btn.move{background:var(--purple);color:#fff}.empty{padding:28px;text-align:center;color:var(--muted);font-weight:750}.form{padding:14px;display:grid;grid-template-columns:1fr 1fr auto;gap:10px;background:#fbfcff;border-bottom:1px solid var(--border)}.form input{font-size:16px;padding:14px;border:1px solid var(--border);border-radius:14px}.note{color:var(--muted);font-size:14px;margin:14px 2px 0}.error{background:#fff2f2;color:#961b1b;border:1px solid #ffd0d0;padding:12px;border-radius:14px;margin-top:12px;font-weight:750;display:none}
+    @media(max-width:720px){.tabs{grid-template-columns:repeat(2,1fr)}.person{grid-template-columns:auto 1fr}.actions{grid-column:1/-1;justify-content:stretch}.btn{flex:1}.form{grid-template-columns:1fr}.panelTitle{font-size:18px}}
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-top">
-      <div>
-        <h1>Event List Check-in</h1>
-        <div class="subtitle" id="loadStatus">Loading names from Google Sheets...</div>
-      </div>
-      <button class="refresh" onclick="reloadFromSheet()">Refresh sheet</button>
+<header>
+  <h1>Pride Singles List Manager</h1>
+  <div class="sub" id="loadText">Loading names from Google Sheets...</div>
+  <div class="tiny">Names are pulled from column B and column G. Local check-ins are saved on this browser only.</div>
+  <div class="tabs">
+    <button class="tab active" data-view="pending"><strong id="pendingCount">0</strong>Pending</button>
+    <button class="tab" data-view="arrived"><strong id="arrivedCount">0</strong>Arrived</button>
+    <button class="tab" data-view="all"><strong id="allCount">0</strong>All</button>
+    <button class="tab" data-view="waiting"><strong id="waitingCount">0</strong>Waiting list</button>
+  </div>
+</header>
+<main>
+  <input id="search" class="search" placeholder="Search by name or phone" />
+  <div id="error" class="error"></div>
+  <section class="panel">
+    <div class="panelTitle"><span id="title">Pending</span><span id="shownCount"></span></div>
+    <div id="waitingForm" class="form" style="display:none">
+      <input id="newName" placeholder="Full name" />
+      <input id="newPhone" placeholder="Phone optional" />
+      <button class="btn move" id="addWaiting">Add to waiting list</button>
     </div>
-
-    <div class="tabs">
-      <button class="tab pending active" data-tab="pending" onclick="setTab('pending')"><strong id="pendingCount">0</strong><span>Pending</span></button>
-      <button class="tab arrived" data-tab="arrived" onclick="setTab('arrived')"><strong id="arrivedCount">0</strong><span>Arrived</span></button>
-      <button class="tab all" data-tab="all" onclick="setTab('all')"><strong id="allCount">0</strong><span>All</span></button>
-      <button class="tab waiting" data-tab="waiting" onclick="setTab('waiting')"><strong id="waitingCount">0</strong><span>Waiting list</span></button>
-    </div>
-  </header>
-
-  <main>
-    <input class="search" id="search" placeholder="Search by name" oninput="render()" />
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2 id="panelTitle">Pending</h2>
-        <div class="tiny" id="panelMeta"></div>
-      </div>
-
-      <div class="form" id="waitForm" style="display:none">
-        <input id="newName" placeholder="Full name" autocomplete="off" />
-        <input id="newPhone" placeholder="Phone / note (optional)" autocomplete="off" />
-        <button class="btn primary" onclick="addWaiting()">Add to waiting list</button>
-      </div>
-
-      <div class="list" id="list"></div>
-    </section>
-
-    <div class="footer-actions">
-      <button class="btn warn" onclick="resetCheckin()">Reset check-in</button>
-      <button class="btn danger" onclick="clearLocalChanges()">Clear local changes</button>
-    </div>
-
-    <p class="note">
-      This page reads the latest names from Google Sheets when you refresh. Arrivals, deletions, and waiting list changes are saved only on this device/browser.
-      If the sheet is private, publish/share it so the page can read it.
-    </p>
-  </main>
-
+    <div class="list" id="list"></div>
+  </section>
+  <div class="note">Tip: if the sheet is updated, refresh this page. Deleted, arrived, and waiting-list changes stay local on this device.</div>
+</main>
 <script>
 const SHEET_ID = '1eBbN1TLzgMzpm_ds-lJ-19iH2JgQQ3DlSTdIJLufP6Y';
 const GID = '1775953041';
-const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
-const STORE_KEY = `event-list-checkin-v1-${SHEET_ID}-${GID}`;
-
-let people = [];
-let waiting = [];
-let deletedIds = new Set();
-let arrivedIds = new Set();
-let currentTab = 'pending';
-
-function normalizeText(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim();
-}
-
-function makeId(name, phone = '') {
-  return normalizeText(`${name} ${phone}`).toLowerCase().replace(/[^a-z0-9א-ת]+/gi, '-').replace(/^-+|-+$/g, '');
-}
-
-function sortByName(list) {
-  return [...list].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-}
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let quoted = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-
-    if (ch === '"') {
-      if (quoted && next === '"') { cell += '"'; i++; }
-      else quoted = !quoted;
-    } else if (ch === ',' && !quoted) {
-      row.push(cell);
-      cell = '';
-    } else if ((ch === '\n' || ch === '\r') && !quoted) {
-      if (ch === '\r' && next === '\n') i++;
-      row.push(cell);
-      rows.push(row);
-      row = [];
-      cell = '';
-    } else {
-      cell += ch;
-    }
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const LS = 'prideSinglesState.v3';
+let state = JSON.parse(localStorage.getItem(LS) || '{}');
+state.arrived ||= {}; state.deleted ||= {}; state.waiting ||= [];
+let people = []; let view = 'pending';
+const $ = id => document.getElementById(id);
+function save(){localStorage.setItem(LS, JSON.stringify(state));}
+function normalize(s){return String(s||'').replace(/\uFEFF/g,'').trim();}
+function parseCSV(text){
+  const rows=[]; let row=[], cur='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(c==='"' && q && n==='"'){cur+='"'; i++; continue;}
+    if(c==='"'){q=!q; continue;}
+    if(c===',' && !q){row.push(cur); cur=''; continue;}
+    if((c==='\n'||c==='\r') && !q){ if(c==='\r' && n==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; continue;}
+    cur+=c;
   }
-  row.push(cell);
-  rows.push(row);
-  return rows;
+  row.push(cur); rows.push(row); return rows;
 }
-
-function looksLikeName(value) {
-  const v = normalizeText(value);
-  if (!v) return false;
-  if (v.length < 2 || v.length > 80) return false;
-  if (/^(name|full name|שם|שמות|first name|last name|email|phone|status|approved|cancel|canceled|cancelled|yes|no|true|false)$/i.test(v)) return false;
-  if (/https?:\/\//i.test(v)) return false;
-  if (/[@]/.test(v)) return false;
-  if (/^\d+$/.test(v)) return false;
-  const letters = v.replace(/[^A-Za-zא-ת]/g, '');
-  return letters.length >= 2;
-}
-
-function extractNamesFromRows(rows) {
-  const names = [];
-  const seen = new Set();
-
-  rows.forEach(row => {
-    row.forEach(cell => {
-      const name = normalizeText(cell);
-      if (!looksLikeName(name)) return;
-      const key = name.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      names.push({ id: makeId(name), name, phone: '', source: 'sheet' });
+function makeId(name, phone=''){return btoa(unescape(encodeURIComponent((name+'|'+phone).toLowerCase()))).replace(/=+$/,'');}
+function extractPeople(rows){
+  const map = new Map();
+  rows.forEach((r, idx)=>{
+    if(idx === 0 && /name|שם|full/i.test(r.join(' '))) return;
+    // Column B = index 1, Column G = index 6. Phone may be near the name if present.
+    [1,6].forEach(col=>{
+      const name = normalize(r[col]);
+      if(!name || name.length < 2) return;
+      if(/^name$|^שם$|^full name$/i.test(name)) return;
+      const phoneCandidates = [r[col+1], r[col-1], r[2], r[7], r[3], r[8]].map(normalize);
+      const phone = phoneCandidates.find(x => /\d{7,}/.test(x.replace(/\D/g,''))) || '';
+      const id = makeId(name, phone);
+      if(!map.has(id)) map.set(id,{id,name,phone,source: col===1?'Column B':'Column G'});
     });
   });
-
-  return sortByName(names);
+  return [...map.values()].sort(sortByName);
 }
-
-function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-    waiting = Array.isArray(saved.waiting) ? saved.waiting : [];
-    deletedIds = new Set(saved.deletedIds || []);
-    arrivedIds = new Set(saved.arrivedIds || []);
-  } catch (e) {}
+function sortByName(a,b){return a.name.localeCompare(b.name, undefined, {sensitivity:'base'});}
+function currentItems(){
+  const q = $('search').value.toLowerCase().trim();
+  let arr;
+  if(view==='waiting') arr = state.waiting.map(x=>({...x, waiting:true}));
+  else {
+    arr = people.filter(p=>!state.deleted[p.id]);
+    if(view==='pending') arr = arr.filter(p=>!state.arrived[p.id]);
+    if(view==='arrived') arr = arr.filter(p=>state.arrived[p.id]);
+  }
+  if(q) arr = arr.filter(p => (p.name+' '+(p.phone||'')).toLowerCase().includes(q));
+  return arr.sort(sortByName);
 }
-
-function saveState() {
-  localStorage.setItem(STORE_KEY, JSON.stringify({
-    waiting,
-    deletedIds: [...deletedIds],
-    arrivedIds: [...arrivedIds]
-  }));
+function render(){
+  const main = people.filter(p=>!state.deleted[p.id]);
+  const pending = main.filter(p=>!state.arrived[p.id]).length;
+  const arrived = main.filter(p=>state.arrived[p.id]).length;
+  $('pendingCount').textContent = pending; $('arrivedCount').textContent = arrived; $('allCount').textContent = main.length; $('waitingCount').textContent = state.waiting.length;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  $('waitingForm').style.display = view==='waiting' ? 'grid' : 'none';
+  $('title').textContent = view==='pending'?'Pending':view==='arrived'?'Arrived':view==='all'?'All':'Waiting list';
+  const items = currentItems(); $('shownCount').textContent = `${items.length} shown`;
+  const list = $('list'); list.innerHTML='';
+  if(!items.length){list.innerHTML='<div class="empty">No people to show</div>'; return;}
+  for(const p of items){
+    const div=document.createElement('div'); div.className='person '+(state.arrived[p.id]?'arrived':'');
+    const initial = (p.name||'?').trim()[0] || '?';
+    div.innerHTML = `<div class="avatar">${escapeHtml(initial.toUpperCase())}</div><div><div class="name">${escapeHtml(p.name)}</div><div class="phone">${escapeHtml(p.phone||'No phone')}</div><span class="badge">${p.waiting?'Waiting list':(state.arrived[p.id]?'Arrived':'Pending')} · ${escapeHtml(p.source||'Sheet')}</span></div><div class="actions"></div>`;
+    const actions = div.querySelector('.actions');
+    if(p.waiting){
+      actions.append(btn('Move to list','move',()=>{state.waiting=state.waiting.filter(x=>x.id!==p.id); people.push({...p, waiting:false, source:'Waiting list'}); save(); render();}));
+      actions.append(btn('Delete','del',()=>{state.waiting=state.waiting.filter(x=>x.id!==p.id); save(); render();}));
+    } else {
+      actions.append(btn(state.arrived[p.id]?'Undo':'Arrived', state.arrived[p.id]?'pending':'arrive',()=>{state.arrived[p.id]=!state.arrived[p.id]; if(!state.arrived[p.id]) delete state.arrived[p.id]; save(); render();}));
+      if(p.phone) actions.append(btn('Copy','copy',()=>navigator.clipboard.writeText(p.phone)));
+      if(p.phone) actions.append(btn('Call','copy',()=>{location.href='tel:'+p.phone.replace(/[^+\d]/g,'');}));
+      actions.append(btn('Delete','del',()=>{if(confirm('Delete '+p.name+' from this device?')){state.deleted[p.id]=true; save(); render();}}));
+    }
+    list.appendChild(div);
+  }
 }
-
-async function reloadFromSheet() {
-  document.getElementById('loadStatus').textContent = 'Loading names from Google Sheets...';
-  try {
-    const res = await fetch(SHEET_CSV_URL + '&cacheBust=' + Date.now());
-    if (!res.ok) throw new Error('Sheet not reachable');
+function btn(text, cls, fn){const b=document.createElement('button'); b.className='btn '+cls; b.textContent=text; b.onclick=fn; return b;}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+async function load(){
+  try{
+    const res = await fetch(CSV_URL + '&cacheBust=' + Date.now());
+    if(!res.ok) throw new Error('Could not read Google Sheet. Make sure it is public or published.');
     const text = await res.text();
     const rows = parseCSV(text);
-    people = extractNamesFromRows(rows).filter(p => !deletedIds.has(p.id));
-    document.getElementById('loadStatus').textContent = `Loaded ${people.length} names from Google Sheets.`;
-  } catch (err) {
-    people = [];
-    document.getElementById('loadStatus').textContent = 'Could not load the sheet. Make sure it is shared/published so GitHub Pages can read it.';
+    people = extractPeople(rows).filter(p=>!state.deleted[p.id]);
+    $('loadText').textContent = `Loaded ${people.length} names from Google Sheets.`;
+    if(!people.length){ $('error').style.display='block'; $('error').textContent='No names found. This version reads names from column B and column G. Make sure the sheet is public/published and the names are in those columns.'; }
+    render();
+  }catch(e){
+    $('loadText').textContent='Could not load Google Sheet.';
+    $('error').style.display='block'; $('error').textContent=e.message + ' If needed, publish the sheet to the web as CSV and I can update the link.'; render();
   }
-  render();
 }
-
-function setTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-  document.getElementById('waitForm').style.display = tab === 'waiting' ? 'grid' : 'none';
-  render();
-}
-
-function getVisibleList() {
-  const q = normalizeText(document.getElementById('search').value).toLowerCase();
-  let list;
-  if (currentTab === 'waiting') list = waiting;
-  else if (currentTab === 'arrived') list = people.filter(p => arrivedIds.has(p.id));
-  else if (currentTab === 'all') list = people;
-  else list = people.filter(p => !arrivedIds.has(p.id));
-
-  if (q) list = list.filter(p => `${p.name} ${p.phone || ''}`.toLowerCase().includes(q));
-  return sortByName(list);
-}
-
-function render() {
-  const pending = people.filter(p => !arrivedIds.has(p.id)).length;
-  const arrived = people.filter(p => arrivedIds.has(p.id)).length;
-  document.getElementById('pendingCount').textContent = pending;
-  document.getElementById('arrivedCount').textContent = arrived;
-  document.getElementById('allCount').textContent = people.length;
-  document.getElementById('waitingCount').textContent = waiting.length;
-
-  const titles = { pending: 'Pending', arrived: 'Arrived', all: 'All', waiting: 'Waiting list' };
-  document.getElementById('panelTitle').textContent = titles[currentTab];
-  const list = getVisibleList();
-  document.getElementById('panelMeta').textContent = `${list.length} shown`;
-
-  const el = document.getElementById('list');
-  if (!list.length) {
-    el.innerHTML = `<div class="empty">No names to show here.</div>`;
-    return;
-  }
-
-  el.innerHTML = list.map(p => personHTML(p)).join('');
-}
-
-function personHTML(p) {
-  const isWaiting = currentTab === 'waiting';
-  const isArrived = arrivedIds.has(p.id);
-  const cls = isWaiting ? 'waiting-row' : isArrived ? 'arrived-row' : '';
-  const first = normalizeText(p.name).charAt(0).toUpperCase() || '?';
-  const phone = p.phone ? `<div class="phone">${escapeHTML(p.phone)}</div>` : '';
-  const action = isWaiting
-    ? `<button class="btn good" onclick="moveToMain('${p.id}')">Move to list</button><button class="btn danger" onclick="deleteWaiting('${p.id}')">Delete</button>`
-    : `<button class="btn ${isArrived ? 'warn' : 'good'}" onclick="toggleArrived('${p.id}')">${isArrived ? 'Undo' : 'Arrived'}</button><button class="btn danger" onclick="deletePerson('${p.id}')">Delete</button>`;
-  return `<div class="person ${cls}">
-    <div class="avatar">${escapeHTML(first)}</div>
-    <div><div class="name">${escapeHTML(p.name)}</div>${phone}</div>
-    <div class="actions">${action}</div>
-  </div>`;
-}
-
-function escapeHTML(str) {
-  return String(str || '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
-}
-
-function toggleArrived(id) {
-  arrivedIds.has(id) ? arrivedIds.delete(id) : arrivedIds.add(id);
-  saveState();
-  render();
-}
-
-function deletePerson(id) {
-  if (!confirm('Delete this person from this device?')) return;
-  deletedIds.add(id);
-  arrivedIds.delete(id);
-  people = people.filter(p => p.id !== id);
-  saveState();
-  render();
-}
-
-function addWaiting() {
-  const name = normalizeText(document.getElementById('newName').value);
-  const phone = normalizeText(document.getElementById('newPhone').value);
-  if (!name) return alert('Add a name first.');
-  const id = `wait-${makeId(name, phone)}-${Date.now()}`;
-  waiting.push({ id, name, phone, source: 'waiting' });
-  waiting = sortByName(waiting);
-  document.getElementById('newName').value = '';
-  document.getElementById('newPhone').value = '';
-  saveState();
-  render();
-}
-
-function moveToMain(id) {
-  const item = waiting.find(p => p.id === id);
-  if (!item) return;
-  const newId = makeId(item.name, item.phone || '') || `manual-${Date.now()}`;
-  people.push({ ...item, id: newId, source: 'manual' });
-  waiting = waiting.filter(p => p.id !== id);
-  deletedIds.delete(newId);
-  saveState();
-  setTab('pending');
-}
-
-function deleteWaiting(id) {
-  if (!confirm('Delete this waiting list person?')) return;
-  waiting = waiting.filter(p => p.id !== id);
-  saveState();
-  render();
-}
-
-function resetCheckin() {
-  if (!confirm('Reset all arrived marks?')) return;
-  arrivedIds.clear();
-  saveState();
-  render();
-}
-
-function clearLocalChanges() {
-  if (!confirm('Clear local arrivals, deletions, and waiting list on this device?')) return;
-  localStorage.removeItem(STORE_KEY);
-  waiting = [];
-  deletedIds = new Set();
-  arrivedIds = new Set();
-  reloadFromSheet();
-}
-
-loadState();
-reloadFromSheet();
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{view=b.dataset.view; render();});
+$('search').oninput=render;
+$('addWaiting').onclick=()=>{const name=normalize($('newName').value), phone=normalize($('newPhone').value); if(!name) return; state.waiting.push({id:makeId(name,phone)+'w'+Date.now(),name,phone,source:'Manual'}); state.waiting.sort(sortByName); $('newName').value=''; $('newPhone').value=''; save(); render();};
+load();
 </script>
 </body>
 </html>
