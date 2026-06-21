@@ -2,153 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Pride Singles Check-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pride Singles List Manager</title>
   <style>
     :root{
-      --bg:#f7f7ff; --card:#ffffff; --ink:#172033; --muted:#647084;
-      --purple:#6d38ff; --blue:#1077ff; --teal:#05a99d; --pink:#ff4fa3;
-      --green:#12a66a; --orange:#ff9f1c; --border:#dbe2f1;
-      --shadow:0 14px 35px rgba(31,41,71,.12);
+      --bg1:#6d28d9; --bg2:#2563eb; --bg3:#0d9488;
+      --card:#ffffffcc; --text:#17172a; --muted:#62677a;
+      --pending:#ffedd5; --pending2:#fb923c;
+      --arrived:#dcfce7; --arrived2:#22c55e;
+      --all:#dbeafe; --all2:#3b82f6;
+      --wait:#f3e8ff; --wait2:#a855f7;
+      --danger:#fee2e2; --danger2:#ef4444;
+      --shadow:0 14px 40px rgba(15,23,42,.14);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(145deg,#fff4fb 0%,#f8f6ff 38%,#eefcff 100%);color:var(--ink)}
-    header{padding:18px 18px 22px;background:linear-gradient(120deg,var(--purple),var(--blue),var(--teal));color:#fff;box-shadow:var(--shadow)}
-    h1{margin:0;font-size:30px;line-height:1.05}.sub{margin-top:8px;font-weight:650;opacity:.94}.tiny{font-size:13px;opacity:.86;margin-top:4px}
-    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.tab{border:0;border-radius:18px;background:rgba(255,255,255,.88);color:#14203d;padding:14px 8px;box-shadow:0 8px 20px rgba(0,0,0,.11);font-size:16px}.tab strong{display:block;font-size:25px}.tab.active{background:#ffe2b6;outline:3px solid rgba(255,255,255,.45)}
-    main{max-width:980px;margin:26px auto;padding:0 14px 38px}.search{width:100%;font-size:18px;padding:17px 18px;border-radius:17px;border:1px solid var(--border);box-shadow:0 5px 18px rgba(31,41,71,.07);outline:none;background:#fff}.panel{margin-top:16px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.panelTitle{display:flex;justify-content:space-between;align-items:center;padding:18px 18px;border-bottom:1px solid var(--border);font-weight:850;font-size:20px}.list{padding:12px}.person{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#fff;margin:10px 0;padding:13px;border-radius:18px;border:1px solid #e7ecf7;box-shadow:0 7px 16px rgba(20,32,61,.06)}.person.arrived{background:#ecfff6;border-color:#b5efd2}.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--pink),var(--purple))}.name{font-size:18px;font-weight:850}.phone{margin-top:3px;color:var(--muted);font-weight:650}.badge{display:inline-block;margin-top:6px;font-size:12px;font-weight:800;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#33406b}.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}button{cursor:pointer}.btn{border:0;border-radius:12px;padding:10px 12px;font-weight:850;font-size:14px}.btn.arrive{background:var(--green);color:#fff}.btn.pending{background:var(--orange);color:#281a00}.btn.copy{background:#e9efff;color:#24345f}.btn.del{background:#ffe9ef;color:#9a1238}.btn.move{background:var(--purple);color:#fff}.empty{padding:28px;text-align:center;color:var(--muted);font-weight:750}.form{padding:14px;display:grid;grid-template-columns:1fr 1fr auto;gap:10px;background:#fbfcff;border-bottom:1px solid var(--border)}.form input{font-size:16px;padding:14px;border:1px solid var(--border);border-radius:14px}.note{color:var(--muted);font-size:14px;margin:14px 2px 0}.error{background:#fff2f2;color:#961b1b;border:1px solid #ffd0d0;padding:12px;border-radius:14px;margin-top:12px;font-weight:750;display:none}
-    @media(max-width:720px){.tabs{grid-template-columns:repeat(2,1fr)}.person{grid-template-columns:auto 1fr}.actions{grid-column:1/-1;justify-content:stretch}.btn{flex:1}.form{grid-template-columns:1fr}.panelTitle{font-size:18px}}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:linear-gradient(135deg,#fff7ed 0%,#f5f3ff 38%,#ecfeff 100%);min-height:100vh}
+    header{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:white;padding:22px 18px 28px;box-shadow:var(--shadow)}
+    .top{max-width:1120px;margin:0 auto}
+    h1{margin:0;font-size:34px;letter-spacing:-.8px}.subtitle{margin-top:7px;opacity:.92;font-size:16px}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    .tab{border:0;border-radius:18px;padding:14px 12px;background:rgba(255,255,255,.86);box-shadow:0 6px 16px rgba(0,0,0,.12);font-size:15px;color:#172044;cursor:pointer;transition:.15s transform,.15s box-shadow;text-align:center}
+    .tab strong{display:block;font-size:24px;line-height:1.1}.tab.active{transform:translateY(-2px);box-shadow:0 12px 22px rgba(0,0,0,.18)}
+    .tab.pending.active{background:linear-gradient(135deg,#fff7ed,var(--pending));outline:3px solid var(--pending2)}
+    .tab.arrived.active{background:linear-gradient(135deg,#f0fdf4,var(--arrived));outline:3px solid var(--arrived2)}
+    .tab.all.active{background:linear-gradient(135deg,#eff6ff,var(--all));outline:3px solid var(--all2)}
+    .tab.wait.active{background:linear-gradient(135deg,#faf5ff,var(--wait));outline:3px solid var(--wait2)}
+    main{max-width:900px;margin:28px auto;padding:0 16px 48px}.search{width:100%;font-size:18px;padding:17px 18px;border-radius:18px;border:1px solid #d7d9e6;background:white;box-shadow:0 8px 24px rgba(15,23,42,.08);outline:none}.search:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.15)}
+    .section-title{margin:18px 0 12px;padding:18px 20px;border-radius:20px;background:var(--card);backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(15,23,42,.08);display:flex;align-items:center;justify-content:space-between}.section-title h2{margin:0;font-size:22px}.hint{color:var(--muted);font-size:14px;margin:0 0 18px}.list{display:grid;gap:12px}.person{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:20px;background:white;box-shadow:0 8px 24px rgba(15,23,42,.08);border:1px solid rgba(226,232,240,.9)}
+    .person.arrived-card{background:linear-gradient(135deg,#fff,#f0fdf4);border-color:#bbf7d0}.avatar{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;color:white;font-weight:800;font-size:20px;background:linear-gradient(135deg,#7c3aed,#06b6d4)}.info .name{font-weight:800;font-size:18px}.info .phone{color:var(--muted);margin-top:4px;font-size:15px}.badge{display:inline-block;margin-top:7px;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700}.badge.pending{background:var(--pending);color:#9a3412}.badge.arrived{background:var(--arrived);color:#166534}.badge.wait{background:var(--wait);color:#6b21a8}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}button.small{border:0;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}.btn-arrive{background:#16a34a;color:white}.btn-undo{background:#fef3c7;color:#92400e}.btn-copy{background:#dbeafe;color:#1d4ed8}.btn-call{background:#e0f2fe;color:#0369a1;text-decoration:none;border-radius:12px;padding:10px 12px;font-weight:700}.btn-delete{background:var(--danger);color:#b91c1c}.btn-move{background:#7c3aed;color:white}.empty{padding:28px;text-align:center;color:var(--muted);background:white;border-radius:20px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .wait-form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;background:white;padding:14px;border-radius:20px;box-shadow:0 8px 24px rgba(15,23,42,.08);margin-bottom:16px}.wait-form input{padding:14px;border:1px solid #d7d9e6;border-radius:14px;font-size:16px}.wait-form button{border:0;border-radius:14px;padding:0 18px;background:#7c3aed;color:white;font-weight:800}
+    .notice{margin-top:18px;color:var(--muted);font-size:13px;line-height:1.4}.error{background:#fee2e2;color:#991b1b;padding:14px;border-radius:14px;margin-top:12px;display:none}
+    @media(max-width:720px){h1{font-size:27px}.tabs{grid-template-columns:repeat(2,1fr)}.person{grid-template-columns:auto 1fr}.actions{grid-column:1/-1;justify-content:stretch}.actions>*{flex:1;text-align:center}.wait-form{grid-template-columns:1fr}.tab strong{font-size:21px}}
   </style>
 </head>
 <body>
-<header>
-  <h1>Pride Singles List Manager</h1>
-  <div class="sub" id="loadText">Loading names from Google Sheets...</div>
-  <div class="tiny">Names are pulled from column B and column G. Local check-ins are saved on this browser only.</div>
-  <div class="tabs">
-    <button class="tab active" data-view="pending"><strong id="pendingCount">0</strong>Pending</button>
-    <button class="tab" data-view="arrived"><strong id="arrivedCount">0</strong>Arrived</button>
-    <button class="tab" data-view="all"><strong id="allCount">0</strong>All</button>
-    <button class="tab" data-view="waiting"><strong id="waitingCount">0</strong>Waiting list</button>
-  </div>
-</header>
-<main>
-  <input id="search" class="search" placeholder="Search by name or phone" />
-  <div id="error" class="error"></div>
-  <section class="panel">
-    <div class="panelTitle"><span id="title">Pending</span><span id="shownCount"></span></div>
-    <div id="waitingForm" class="form" style="display:none">
-      <input id="newName" placeholder="Full name" />
-      <input id="newPhone" placeholder="Phone optional" />
-      <button class="btn move" id="addWaiting">Add to waiting list</button>
-    </div>
-    <div class="list" id="list"></div>
-  </section>
-  <div class="note">Tip: if the sheet is updated, refresh this page. Deleted, arrived, and waiting-list changes stay local on this device.</div>
-</main>
+<header><div class="top"><h1>Pride Singles List Manager</h1><div class="subtitle" id="subtitle">Loading names from Google Sheets...</div><div class="tabs"><button class="tab pending active" data-tab="pending"><strong id="pendingCount">0</strong>Pending</button><button class="tab arrived" data-tab="arrived"><strong id="arrivedCount">0</strong>Arrived</button><button class="tab all" data-tab="all"><strong id="allCount">0</strong>All</button><button class="tab wait" data-tab="waiting"><strong id="waitingCount">0</strong>Waiting list</button></div></div></header>
+<main><input class="search" id="search" placeholder="Search by name" autocomplete="off"><div class="error" id="error"></div><div class="section-title"><h2 id="title">Pending</h2><span id="shownCount"></span></div><div id="waitingPanel" style="display:none"><form class="wait-form" id="waitForm"><input id="waitName" placeholder="Name"><input id="waitPhone" placeholder="Phone optional"><button>Add</button></form></div><div class="list" id="list"></div><p class="notice">Names are loaded from the published Google Sheet CSV. The page reads columns B and G, removes duplicates, sorts A to Z, and saves check-ins/waiting list only on this device/browser.</p></main>
 <script>
-const SHEET_ID = '1eBbN1TLzgMzpm_ds-lJ-19iH2JgQQ3DlSTdIJLufP6Y';
-const GID = '1775953041';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
-const LS = 'prideSinglesState.v3';
-let state = JSON.parse(localStorage.getItem(LS) || '{}');
-state.arrived ||= {}; state.deleted ||= {}; state.waiting ||= [];
-let people = []; let view = 'pending';
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSf0H5M4icbcP8pfGg7Ocf-iCV1b1SNbky2TVRroSYvdNexRpZrlOgW8X0mspB_8qCB0pk8YT5Y-JYU/pub?output=csv";
+const STORAGE_KEY = "prideSinglesState_v3";
+let people = [], waiting = [], tab = "pending", search = "";
 const $ = id => document.getElementById(id);
-function save(){localStorage.setItem(LS, JSON.stringify(state));}
-function normalize(s){return String(s||'').replace(/\uFEFF/g,'').trim();}
-function parseCSV(text){
-  const rows=[]; let row=[], cur='', q=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i], n=text[i+1];
-    if(c==='"' && q && n==='"'){cur+='"'; i++; continue;}
-    if(c==='"'){q=!q; continue;}
-    if(c===',' && !q){row.push(cur); cur=''; continue;}
-    if((c==='\n'||c==='\r') && !q){ if(c==='\r' && n==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; continue;}
-    cur+=c;
-  }
-  row.push(cur); rows.push(row); return rows;
-}
-function makeId(name, phone=''){return btoa(unescape(encodeURIComponent((name+'|'+phone).toLowerCase()))).replace(/=+$/,'');}
-function extractPeople(rows){
-  const map = new Map();
-  rows.forEach((r, idx)=>{
-    if(idx === 0 && /name|שם|full/i.test(r.join(' '))) return;
-    // Column B = index 1, Column G = index 6. Phone may be near the name if present.
-    [1,6].forEach(col=>{
-      const name = normalize(r[col]);
-      if(!name || name.length < 2) return;
-      if(/^name$|^שם$|^full name$/i.test(name)) return;
-      const phoneCandidates = [r[col+1], r[col-1], r[2], r[7], r[3], r[8]].map(normalize);
-      const phone = phoneCandidates.find(x => /\d{7,}/.test(x.replace(/\D/g,''))) || '';
-      const id = makeId(name, phone);
-      if(!map.has(id)) map.set(id,{id,name,phone,source: col===1?'Column B':'Column G'});
-    });
-  });
-  return [...map.values()].sort(sortByName);
-}
-function sortByName(a,b){return a.name.localeCompare(b.name, undefined, {sensitivity:'base'});}
-function currentItems(){
-  const q = $('search').value.toLowerCase().trim();
-  let arr;
-  if(view==='waiting') arr = state.waiting.map(x=>({...x, waiting:true}));
-  else {
-    arr = people.filter(p=>!state.deleted[p.id]);
-    if(view==='pending') arr = arr.filter(p=>!state.arrived[p.id]);
-    if(view==='arrived') arr = arr.filter(p=>state.arrived[p.id]);
-  }
-  if(q) arr = arr.filter(p => (p.name+' '+(p.phone||'')).toLowerCase().includes(q));
-  return arr.sort(sortByName);
-}
-function render(){
-  const main = people.filter(p=>!state.deleted[p.id]);
-  const pending = main.filter(p=>!state.arrived[p.id]).length;
-  const arrived = main.filter(p=>state.arrived[p.id]).length;
-  $('pendingCount').textContent = pending; $('arrivedCount').textContent = arrived; $('allCount').textContent = main.length; $('waitingCount').textContent = state.waiting.length;
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
-  $('waitingForm').style.display = view==='waiting' ? 'grid' : 'none';
-  $('title').textContent = view==='pending'?'Pending':view==='arrived'?'Arrived':view==='all'?'All':'Waiting list';
-  const items = currentItems(); $('shownCount').textContent = `${items.length} shown`;
-  const list = $('list'); list.innerHTML='';
-  if(!items.length){list.innerHTML='<div class="empty">No people to show</div>'; return;}
-  for(const p of items){
-    const div=document.createElement('div'); div.className='person '+(state.arrived[p.id]?'arrived':'');
-    const initial = (p.name||'?').trim()[0] || '?';
-    div.innerHTML = `<div class="avatar">${escapeHtml(initial.toUpperCase())}</div><div><div class="name">${escapeHtml(p.name)}</div><div class="phone">${escapeHtml(p.phone||'No phone')}</div><span class="badge">${p.waiting?'Waiting list':(state.arrived[p.id]?'Arrived':'Pending')} · ${escapeHtml(p.source||'Sheet')}</span></div><div class="actions"></div>`;
-    const actions = div.querySelector('.actions');
-    if(p.waiting){
-      actions.append(btn('Move to list','move',()=>{state.waiting=state.waiting.filter(x=>x.id!==p.id); people.push({...p, waiting:false, source:'Waiting list'}); save(); render();}));
-      actions.append(btn('Delete','del',()=>{state.waiting=state.waiting.filter(x=>x.id!==p.id); save(); render();}));
-    } else {
-      actions.append(btn(state.arrived[p.id]?'Undo':'Arrived', state.arrived[p.id]?'pending':'arrive',()=>{state.arrived[p.id]=!state.arrived[p.id]; if(!state.arrived[p.id]) delete state.arrived[p.id]; save(); render();}));
-      if(p.phone) actions.append(btn('Copy','copy',()=>navigator.clipboard.writeText(p.phone)));
-      if(p.phone) actions.append(btn('Call','copy',()=>{location.href='tel:'+p.phone.replace(/[^+\d]/g,'');}));
-      actions.append(btn('Delete','del',()=>{if(confirm('Delete '+p.name+' from this device?')){state.deleted[p.id]=true; save(); render();}}));
-    }
-    list.appendChild(div);
-  }
-}
-function btn(text, cls, fn){const b=document.createElement('button'); b.className='btn '+cls; b.textContent=text; b.onclick=fn; return b;}
-function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-async function load(){
-  try{
-    const res = await fetch(CSV_URL + '&cacheBust=' + Date.now());
-    if(!res.ok) throw new Error('Could not read Google Sheet. Make sure it is public or published.');
-    const text = await res.text();
-    const rows = parseCSV(text);
-    people = extractPeople(rows).filter(p=>!state.deleted[p.id]);
-    $('loadText').textContent = `Loaded ${people.length} names from Google Sheets.`;
-    if(!people.length){ $('error').style.display='block'; $('error').textContent='No names found. This version reads names from column B and column G. Make sure the sheet is public/published and the names are in those columns.'; }
-    render();
-  }catch(e){
-    $('loadText').textContent='Could not load Google Sheet.';
-    $('error').style.display='block'; $('error').textContent=e.message + ' If needed, publish the sheet to the web as CSV and I can update the link.'; render();
-  }
-}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{view=b.dataset.view; render();});
-$('search').oninput=render;
-$('addWaiting').onclick=()=>{const name=normalize($('newName').value), phone=normalize($('newPhone').value); if(!name) return; state.waiting.push({id:makeId(name,phone)+'w'+Date.now(),name,phone,source:'Manual'}); state.waiting.sort(sortByName); $('newName').value=''; $('newPhone').value=''; save(); render();};
-load();
+function parseCSV(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&q&&n==='"'){cell+='"';i++;continue}if(c==='"'){q=!q;continue}if(c===','&&!q){row.push(cell);cell='';continue}if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(x=>String(x).trim()!==''))rows.push(row);row=[];cell='';continue}cell+=c}row.push(cell);if(row.some(x=>String(x).trim()!==''))rows.push(row);return rows}
+function cleanName(v){return String(v||'').replace(/\s+/g,' ').trim()}
+function sortByName(a,b){return a.name.localeCompare(b.name,undefined,{sensitivity:'base'})}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');return {arrived:new Set(s.arrived||[]),deleted:new Set(s.deleted||[]),waiting:s.waiting||[]}}catch(e){return {arrived:new Set(),deleted:new Set(),waiting:[]}}}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify({arrived:people.filter(p=>p.arrived).map(p=>p.id),deleted:people.filter(p=>p.deleted).map(p=>p.id),waiting}))}
+function makeId(name){return name.toLowerCase().replace(/[^a-z0-9א-ת]+/gi,'-')}
+async function load(){try{const res=await fetch(CSV_URL,{cache:'no-store'});if(!res.ok)throw new Error('Could not load CSV');const text=await res.text();const rows=parseCSV(text);const state=loadState();const seen=new Set();const list=[];rows.forEach((r,idx)=>{[r[1],r[6]].forEach(raw=>{const name=cleanName(raw);if(!name||name.length<2)return;const low=name.toLowerCase();if(low.includes('name')||low.includes('שם'))return;const id=makeId(name);if(seen.has(id))return;seen.add(id);list.push({id,name,phone:'',arrived:state.arrived.has(id),deleted:state.deleted.has(id)})})});people=list.sort(sortByName);waiting=(state.waiting||[]).sort(sortByName);$('subtitle').textContent=`Loaded ${people.filter(p=>!p.deleted).length} names from Google Sheets.`;render()}catch(e){$('subtitle').textContent='Could not load Google Sheet.';$('error').style.display='block';$('error').textContent='Failed to fetch. Check that the sheet is published to the web as CSV.';render()}}
+function currentList(){let list=people.filter(p=>!p.deleted);if(tab==='pending')list=list.filter(p=>!p.arrived);if(tab==='arrived')list=list.filter(p=>p.arrived);if(tab==='waiting')list=waiting;if(search)list=list.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||(p.phone||'').includes(search));return list.sort(sortByName)}
+function render(){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$('pendingCount').textContent=people.filter(p=>!p.deleted&&!p.arrived).length;$('arrivedCount').textContent=people.filter(p=>!p.deleted&&p.arrived).length;$('allCount').textContent=people.filter(p=>!p.deleted).length;$('waitingCount').textContent=waiting.length;const titles={pending:'Pending',arrived:'Arrived',all:'All',waiting:'Waiting list'};$('title').textContent=titles[tab];$('waitingPanel').style.display=tab==='waiting'?'block':'none';const list=currentList();$('shownCount').textContent=list.length+' shown';$('list').innerHTML=list.length?'':`<div class="empty">No people to show here.</div>`;list.forEach(p=>{const div=document.createElement('div');div.className='person '+(p.arrived?'arrived-card':'');const initial=(p.name||'?').trim()[0]?.toUpperCase()||'?';if(tab==='waiting'){div.innerHTML=`<div class="avatar">${initial}</div><div class="info"><div class="name"></div><div class="phone"></div><span class="badge wait">Waiting list</span></div><div class="actions"><button class="small btn-move">Move to list</button><button class="small btn-delete">Delete</button></div>`;div.querySelector('.btn-move').onclick=()=>moveToMain(p.id);div.querySelector('.btn-delete').onclick=()=>deleteWaiting(p.id)}else{div.innerHTML=`<div class="avatar">${initial}</div><div class="info"><div class="name"></div><div class="phone"></div><span class="badge ${p.arrived?'arrived':'pending'}">${p.arrived?'Arrived':'Pending'}</span></div><div class="actions"><button class="small ${p.arrived?'btn-undo':'btn-arrive'}">${p.arrived?'Undo':'Arrived'}</button><button class="small btn-delete">Delete</button></div>`;div.querySelector('button').onclick=()=>toggleArrived(p.id);div.querySelector('.btn-delete').onclick=()=>deletePerson(p.id)}div.querySelector('.name').textContent=p.name;div.querySelector('.phone').textContent=p.phone||'';$('list').appendChild(div)})}
+function toggleArrived(id){const p=people.find(x=>x.id===id);if(p)p.arrived=!p.arrived;saveState();render()}
+function deletePerson(id){const p=people.find(x=>x.id===id);if(p&&confirm('Delete '+p.name+' from this device list?')){p.deleted=true;saveState();render()}}
+function deleteWaiting(id){waiting=waiting.filter(p=>p.id!==id);saveState();render()}
+function moveToMain(id){const p=waiting.find(x=>x.id===id);if(!p)return;waiting=waiting.filter(x=>x.id!==id);people.push({...p,arrived:false,deleted:false});people.sort(sortByName);saveState();tab='pending';render()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});$('search').oninput=e=>{search=e.target.value;render()};$('waitForm').onsubmit=e=>{e.preventDefault();const name=cleanName($('waitName').value),phone=cleanName($('waitPhone').value);if(!name)return;waiting.push({id:'wait-'+Date.now(),name,phone});waiting.sort(sortByName);$('waitName').value='';$('waitPhone').value='';saveState();render()};load();
 </script>
 </body>
 </html>
