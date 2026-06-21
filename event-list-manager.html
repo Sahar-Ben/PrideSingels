@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Event List Check-in</title>
+  <style>
+    :root {
+      --bg1: #fff4fb;
+      --bg2: #eefaff;
+      --ink: #14142b;
+      --muted: #5e6475;
+      --card: rgba(255,255,255,.92);
+      --line: rgba(45, 35, 90, .14);
+      --shadow: 0 18px 45px rgba(31, 23, 80, .12);
+      --purple: #6d3df5;
+      --blue: #0877f2;
+      --teal: #08a88a;
+      --orange: #ff9d2e;
+      --green: #20b26b;
+      --pink: #f0569a;
+      --red: #e5484d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(240, 86, 154, .18), transparent 28rem),
+        radial-gradient(circle at top right, rgba(8, 168, 138, .2), transparent 32rem),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    .hero {
+      padding: max(18px, env(safe-area-inset-top)) 18px 24px;
+      color: white;
+      background: linear-gradient(120deg, #7137ff, #0877f2 55%, #08a88a);
+      box-shadow: 0 14px 35px rgba(39, 55, 160, .24);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      max-width: 1200px;
+      margin: 0 auto 16px;
+    }
+
+    h1 { margin: 0; font-size: clamp(24px, 3.8vw, 40px); letter-spacing: -0.04em; }
+    .subtitle { margin-top: 5px; font-size: 15px; opacity: .92; }
+    .refresh {
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.18);
+      color: white;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 22px;
+      padding: 14px 10px;
+      min-height: 78px;
+      background: rgba(255,255,255,.9);
+      color: #14142b;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(0,0,0,.11), inset 0 0 0 1px rgba(255,255,255,.55);
+      display: grid;
+      place-items: center;
+    }
+
+    .tab strong { display: block; font-size: 25px; line-height: 1; }
+    .tab span { display: block; margin-top: 7px; font-size: 14px; }
+    .tab.active { transform: translateY(-2px); outline: 3px solid rgba(255,255,255,.65); }
+    .tab.pending.active { background: linear-gradient(135deg, #fff3c7, #ffd59a); color: #652b00; }
+    .tab.arrived.active { background: linear-gradient(135deg, #dfffea, #8af0bd); color: #053a22; }
+    .tab.all.active { background: linear-gradient(135deg, #eaf3ff, #b6d8ff); color: #092a62; }
+    .tab.waiting.active { background: linear-gradient(135deg, #f5e7ff, #d9b4ff); color: #3d1161; }
+
+    main { max-width: 900px; margin: 26px auto 60px; padding: 0 16px; }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 17px 18px;
+      font-size: 17px;
+      background: rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+    .search:focus { border-color: rgba(109, 61, 245, .45); box-shadow: 0 0 0 4px rgba(109, 61, 245, .13), var(--shadow); }
+
+    .panel {
+      margin-top: 16px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-head h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+    .tiny { color: var(--muted); font-size: 13px; }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(245,231,255,.8), rgba(232,250,255,.8));
+    }
+    .form input {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 13px;
+      font-size: 16px;
+      background: white;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #101026;
+      background: #eef1f7;
+      white-space: nowrap;
+    }
+    .btn.primary { background: linear-gradient(135deg, #7137ff, #0877f2); color: white; }
+    .btn.good { background: #dfffea; color: #075231; }
+    .btn.warn { background: #fff3c7; color: #652b00; }
+    .btn.danger { background: #ffe5e5; color: #8b1015; }
+
+    .list { padding: 10px; }
+    .empty { padding: 32px 18px; text-align: center; color: var(--muted); }
+
+    .person {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 13px;
+      margin: 8px 0;
+      border-radius: 20px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(31, 23, 80, .06);
+    }
+    .person.arrived-row { background: linear-gradient(135deg, rgba(223,255,234,.95), rgba(255,255,255,.9)); }
+    .person.waiting-row { background: linear-gradient(135deg, rgba(245,231,255,.95), rgba(255,255,255,.9)); }
+
+    .avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: white;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      box-shadow: 0 10px 18px rgba(109, 61, 245, .22);
+    }
+    .arrived-row .avatar { background: linear-gradient(135deg, var(--green), var(--teal)); }
+    .waiting-row .avatar { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+
+    .name { font-size: 18px; font-weight: 850; letter-spacing: -0.02em; }
+    .phone { margin-top: 3px; color: var(--muted); font-size: 14px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .note { margin-top: 14px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .footer-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+    @media (max-width: 760px) {
+      .tabs { grid-template-columns: repeat(2, 1fr); }
+      .form { grid-template-columns: 1fr; }
+      .person { grid-template-columns: auto 1fr; }
+      .actions { grid-column: 1 / -1; justify-content: stretch; }
+      .actions .btn { flex: 1; }
+      .hero-top { flex-direction: column; }
+      .refresh { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <h1>Event List Check-in</h1>
+        <div class="subtitle" id="loadStatus">Loading names from Google Sheets...</div>
+      </div>
+      <button class="refresh" onclick="reloadFromSheet()">Refresh sheet</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab pending active" data-tab="pending" onclick="setTab('pending')"><strong id="pendingCount">0</strong><span>Pending</span></button>
+      <button class="tab arrived" data-tab="arrived" onclick="setTab('arrived')"><strong id="arrivedCount">0</strong><span>Arrived</span></button>
+      <button class="tab all" data-tab="all" onclick="setTab('all')"><strong id="allCount">0</strong><span>All</span></button>
+      <button class="tab waiting" data-tab="waiting" onclick="setTab('waiting')"><strong id="waitingCount">0</strong><span>Waiting list</span></button>
+    </div>
+  </header>
+
+  <main>
+    <input class="search" id="search" placeholder="Search by name" oninput="render()" />
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2 id="panelTitle">Pending</h2>
+        <div class="tiny" id="panelMeta"></div>
+      </div>
+
+      <div class="form" id="waitForm" style="display:none">
+        <input id="newName" placeholder="Full name" autocomplete="off" />
+        <input id="newPhone" placeholder="Phone / note (optional)" autocomplete="off" />
+        <button class="btn primary" onclick="addWaiting()">Add to waiting list</button>
+      </div>
+
+      <div class="list" id="list"></div>
+    </section>
+
+    <div class="footer-actions">
+      <button class="btn warn" onclick="resetCheckin()">Reset check-in</button>
+      <button class="btn danger" onclick="clearLocalChanges()">Clear local changes</button>
+    </div>
+
+    <p class="note">
+      This page reads the latest names from Google Sheets when you refresh. Arrivals, deletions, and waiting list changes are saved only on this device/browser.
+      If the sheet is private, publish/share it so the page can read it.
+    </p>
+  </main>
+
+<script>
+const SHEET_ID = '1eBbN1TLzgMzpm_ds-lJ-19iH2JgQQ3DlSTdIJLufP6Y';
+const GID = '1775953041';
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+const STORE_KEY = `event-list-checkin-v1-${SHEET_ID}-${GID}`;
+
+let people = [];
+let waiting = [];
+let deletedIds = new Set();
+let arrivedIds = new Set();
+let currentTab = 'pending';
+
+function normalizeText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function makeId(name, phone = '') {
+  return normalizeText(`${name} ${phone}`).toLowerCase().replace(/[^a-z0-9א-ת]+/gi, '-').replace(/^-+|-+$/g, '');
+}
+
+function sortByName(list) {
+  return [...list].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === '"') {
+      if (quoted && next === '"') { cell += '"'; i++; }
+      else quoted = !quoted;
+    } else if (ch === ',' && !quoted) {
+      row.push(cell);
+      cell = '';
+    } else if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+    } else {
+      cell += ch;
+    }
+  }
+  row.push(cell);
+  rows.push(row);
+  return rows;
+}
+
+function looksLikeName(value) {
+  const v = normalizeText(value);
+  if (!v) return false;
+  if (v.length < 2 || v.length > 80) return false;
+  if (/^(name|full name|שם|שמות|first name|last name|email|phone|status|approved|cancel|canceled|cancelled|yes|no|true|false)$/i.test(v)) return false;
+  if (/https?:\/\//i.test(v)) return false;
+  if (/[@]/.test(v)) return false;
+  if (/^\d+$/.test(v)) return false;
+  const letters = v.replace(/[^A-Za-zא-ת]/g, '');
+  return letters.length >= 2;
+}
+
+function extractNamesFromRows(rows) {
+  const names = [];
+  const seen = new Set();
+
+  rows.forEach(row => {
+    row.forEach(cell => {
+      const name = normalizeText(cell);
+      if (!looksLikeName(name)) return;
+      const key = name.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      names.push({ id: makeId(name), name, phone: '', source: 'sheet' });
+    });
+  });
+
+  return sortByName(names);
+}
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    waiting = Array.isArray(saved.waiting) ? saved.waiting : [];
+    deletedIds = new Set(saved.deletedIds || []);
+    arrivedIds = new Set(saved.arrivedIds || []);
+  } catch (e) {}
+}
+
+function saveState() {
+  localStorage.setItem(STORE_KEY, JSON.stringify({
+    waiting,
+    deletedIds: [...deletedIds],
+    arrivedIds: [...arrivedIds]
+  }));
+}
+
+async function reloadFromSheet() {
+  document.getElementById('loadStatus').textContent = 'Loading names from Google Sheets...';
+  try {
+    const res = await fetch(SHEET_CSV_URL + '&cacheBust=' + Date.now());
+    if (!res.ok) throw new Error('Sheet not reachable');
+    const text = await res.text();
+    const rows = parseCSV(text);
+    people = extractNamesFromRows(rows).filter(p => !deletedIds.has(p.id));
+    document.getElementById('loadStatus').textContent = `Loaded ${people.length} names from Google Sheets.`;
+  } catch (err) {
+    people = [];
+    document.getElementById('loadStatus').textContent = 'Could not load the sheet. Make sure it is shared/published so GitHub Pages can read it.';
+  }
+  render();
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+  document.getElementById('waitForm').style.display = tab === 'waiting' ? 'grid' : 'none';
+  render();
+}
+
+function getVisibleList() {
+  const q = normalizeText(document.getElementById('search').value).toLowerCase();
+  let list;
+  if (currentTab === 'waiting') list = waiting;
+  else if (currentTab === 'arrived') list = people.filter(p => arrivedIds.has(p.id));
+  else if (currentTab === 'all') list = people;
+  else list = people.filter(p => !arrivedIds.has(p.id));
+
+  if (q) list = list.filter(p => `${p.name} ${p.phone || ''}`.toLowerCase().includes(q));
+  return sortByName(list);
+}
+
+function render() {
+  const pending = people.filter(p => !arrivedIds.has(p.id)).length;
+  const arrived = people.filter(p => arrivedIds.has(p.id)).length;
+  document.getElementById('pendingCount').textContent = pending;
+  document.getElementById('arrivedCount').textContent = arrived;
+  document.getElementById('allCount').textContent = people.length;
+  document.getElementById('waitingCount').textContent = waiting.length;
+
+  const titles = { pending: 'Pending', arrived: 'Arrived', all: 'All', waiting: 'Waiting list' };
+  document.getElementById('panelTitle').textContent = titles[currentTab];
+  const list = getVisibleList();
+  document.getElementById('panelMeta').textContent = `${list.length} shown`;
+
+  const el = document.getElementById('list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">No names to show here.</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(p => personHTML(p)).join('');
+}
+
+function personHTML(p) {
+  const isWaiting = currentTab === 'waiting';
+  const isArrived = arrivedIds.has(p.id);
+  const cls = isWaiting ? 'waiting-row' : isArrived ? 'arrived-row' : '';
+  const first = normalizeText(p.name).charAt(0).toUpperCase() || '?';
+  const phone = p.phone ? `<div class="phone">${escapeHTML(p.phone)}</div>` : '';
+  const action = isWaiting
+    ? `<button class="btn good" onclick="moveToMain('${p.id}')">Move to list</button><button class="btn danger" onclick="deleteWaiting('${p.id}')">Delete</button>`
+    : `<button class="btn ${isArrived ? 'warn' : 'good'}" onclick="toggleArrived('${p.id}')">${isArrived ? 'Undo' : 'Arrived'}</button><button class="btn danger" onclick="deletePerson('${p.id}')">Delete</button>`;
+  return `<div class="person ${cls}">
+    <div class="avatar">${escapeHTML(first)}</div>
+    <div><div class="name">${escapeHTML(p.name)}</div>${phone}</div>
+    <div class="actions">${action}</div>
+  </div>`;
+}
+
+function escapeHTML(str) {
+  return String(str || '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+}
+
+function toggleArrived(id) {
+  arrivedIds.has(id) ? arrivedIds.delete(id) : arrivedIds.add(id);
+  saveState();
+  render();
+}
+
+function deletePerson(id) {
+  if (!confirm('Delete this person from this device?')) return;
+  deletedIds.add(id);
+  arrivedIds.delete(id);
+  people = people.filter(p => p.id !== id);
+  saveState();
+  render();
+}
+
+function addWaiting() {
+  const name = normalizeText(document.getElementById('newName').value);
+  const phone = normalizeText(document.getElementById('newPhone').value);
+  if (!name) return alert('Add a name first.');
+  const id = `wait-${makeId(name, phone)}-${Date.now()}`;
+  waiting.push({ id, name, phone, source: 'waiting' });
+  waiting = sortByName(waiting);
+  document.getElementById('newName').value = '';
+  document.getElementById('newPhone').value = '';
+  saveState();
+  render();
+}
+
+function moveToMain(id) {
+  const item = waiting.find(p => p.id === id);
+  if (!item) return;
+  const newId = makeId(item.name, item.phone || '') || `manual-${Date.now()}`;
+  people.push({ ...item, id: newId, source: 'manual' });
+  waiting = waiting.filter(p => p.id !== id);
+  deletedIds.delete(newId);
+  saveState();
+  setTab('pending');
+}
+
+function deleteWaiting(id) {
+  if (!confirm('Delete this waiting list person?')) return;
+  waiting = waiting.filter(p => p.id !== id);
+  saveState();
+  render();
+}
+
+function resetCheckin() {
+  if (!confirm('Reset all arrived marks?')) return;
+  arrivedIds.clear();
+  saveState();
+  render();
+}
+
+function clearLocalChanges() {
+  if (!confirm('Clear local arrivals, deletions, and waiting list on this device?')) return;
+  localStorage.removeItem(STORE_KEY);
+  waiting = [];
+  deletedIds = new Set();
+  arrivedIds = new Set();
+  reloadFromSheet();
+}
+
+loadState();
+reloadFromSheet();
+</script>
+</body>
+</html>
